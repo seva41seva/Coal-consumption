@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17231f">
+  <meta name="description" content="Офлайн-калькулятор расхода угля по температуре наружного воздуха и расходу подпитки.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>Тепло · расчёт угля</title>
+  <style>
+    :root{color-scheme:light;--ink:#17231f;--muted:#68756f;--paper:#f5f5ef;--card:#fff;--line:#e4e8df;--green:#254c3e;--green2:#dcebe1;--amber:#f2ae3d;--amber-soft:#fff2d7;--red:#b83c2e;--shadow:0 14px 44px #17231f12}
+    *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+    .shell{max-width:700px;margin:0 auto;padding:25px 20px 36px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}.brand{display:flex;gap:11px;align-items:center;font-size:14px;font-weight:750;letter-spacing:.01em}.brand-icon{width:39px;height:39px;border-radius:13px;background:var(--ink);display:grid;place-items:center;color:var(--amber);font-size:21px}.offline{font-size:11px;font-weight:700;color:var(--green);background:var(--green2);padding:8px 11px;border-radius:99px;display:flex;align-items:center;gap:6px}.offline:before{content:"";width:7px;height:7px;background:#36845e;border-radius:50%}
+    .intro{margin-bottom:25px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);font-weight:800;margin:0 0 9px}.intro h1{font-size:clamp(29px,7vw,43px);line-height:1.04;letter-spacing:-.045em;margin:0 0 11px}.intro p{margin:0;color:var(--muted);font-size:14px;line-height:1.55;max-width:470px}
+    .panel{background:var(--card);border:1px solid #e9ece5;border-radius:22px;padding:22px;box-shadow:var(--shadow)}.field-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.field-head label{font-weight:750;font-size:14px}.range{color:var(--muted);font-size:12px}.temp-control{display:grid;grid-template-columns:1fr 100px;align-items:center;gap:18px}.temp-input-wrap{position:relative}.temp-input-wrap input{width:100%;border:0;border-bottom:1px solid var(--line);padding:8px 34px 8px 0;font-size:38px;font-weight:750;letter-spacing:-.04em;color:var(--ink);outline:none;background:transparent}.temp-input-wrap input:focus{border-color:var(--green)}.temp-input-wrap .unit{position:absolute;right:6px;top:17px;color:var(--muted);font-size:18px;font-weight:600}.slider-wrap{padding:4px 0 0}.slider-labels{display:flex;justify-content:space-between;color:#86918b;font-size:10px;margin-top:5px}input[type=range]{width:100%;accent-color:var(--green);height:24px;margin:0;cursor:pointer}.divider{height:1px;background:var(--line);margin:22px 0}.input-label{display:block;font-size:14px;font-weight:750;margin-bottom:6px}.hint{font-size:12px;color:var(--muted);margin-bottom:12px}.number-wrap{position:relative}.number-wrap input{width:100%;height:54px;border:1px solid #dfe4dc;border-radius:13px;padding:0 55px 0 14px;font-size:17px;font-weight:650;background:#fcfcfa;outline:none;color:var(--ink)}.number-wrap input:focus{border-color:var(--green);box-shadow:0 0 0 3px #254c3e14}.number-wrap span{position:absolute;right:14px;top:17px;color:var(--muted);font-size:13px}.error{display:none;color:var(--red);font-size:12px;margin-top:9px}.actions{display:flex;gap:10px;margin-top:20px}.btn{border:0;border-radius:13px;min-height:51px;padding:0 18px;font-size:14px;font-weight:750;cursor:pointer}.btn-primary{background:var(--green);color:white;flex:1;box-shadow:0 5px 12px #254c3e22}.btn-primary:active{transform:translateY(1px)}.btn-secondary{background:#eff1eb;color:var(--ink)}
+    .result{display:none;margin-top:16px;background:var(--ink);color:#fff;border-radius:22px;padding:22px;overflow:hidden;position:relative}.result:after{content:"";position:absolute;width:150px;height:150px;right:-65px;top:-65px;border-radius:50%;border:1px solid #ffffff15;box-shadow:0 0 0 18px #ffffff08,0 0 0 36px #ffffff05;pointer-events:none}.result-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:18px;position:relative;z-index:1}.result-title{font-size:12px;color:#bac5bf;font-weight:650}.temperature-badge{border:1px solid #ffffff24;border-radius:99px;padding:6px 10px;color:#f4c36b;font-size:12px;font-weight:750;white-space:nowrap}.total-label{font-size:12px;color:#bac5bf;margin-bottom:4px}.total{font-size:36px;font-weight:800;letter-spacing:-.04em;line-height:1.1}.total small{font-size:14px;font-weight:600;color:#c5cec9;letter-spacing:0}.result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:20px;position:relative;z-index:1}.metric{background:#ffffff0d;border:1px solid #ffffff13;border-radius:13px;padding:12px}.metric-label{font-size:11px;color:#bac5bf;margin-bottom:7px}.metric-value{font-weight:750;font-size:17px}.metric-value small{font-size:11px;color:#bac5bf;font-weight:500}.formula{font-size:11px;line-height:1.5;color:#bbc6bf;margin:15px 0 0;position:relative;z-index:1}.foot{font-size:11px;color:#87918b;text-align:center;line-height:1.5;margin:17px 8px 0}.install{display:none;margin-top:14px;width:100%;background:var(--amber-soft);color:#5b3c05}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#17231f;color:white;padding:11px 16px;border-radius:12px;font-size:13px;box-shadow:var(--shadow);display:none;max-width:calc(100% - 32px)}
+    @media(max-width:480px){.shell{padding:19px 16px calc(25px + env(safe-area-inset-bottom))}.top{margin-bottom:27px}.panel{padding:19px;border-radius:19px}.temp-control{grid-template-columns:1fr 93px;gap:13px}.result{padding:20px;border-radius:19px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top"><div class="brand"><div class="brand-icon" aria-hidden="true">♨</div><span>ТЕПЛО / РАСЧЁТ</span></div><div class="offline">Работает офлайн</div></header>
+    <section class="intro"><p class="eyebrow">Калькулятор котельной</p><h1>Расход угля<br>за сутки</h1><p>Укажите температуру воздуха и объём подпитки — приложение рассчитает режим и общий расход угля.</p></section>
+    <form class="panel" id="calcForm" novalidate>
+      <div class="field-head"><label for="temperature">Температура воздуха</label><span class="range">от −35 до +8 °C</span></div>
+      <div class="temp-control"><div class="temp-input-wrap"><input id="temperature" type="number" inputmode="numeric" min="-35" max="8" step="1" value="0" aria-label="Температура воздуха в градусах Цельсия"><span class="unit">°C</span></div><div class="slider-wrap"><input id="tempSlider" type="range" min="-35" max="8" step="1" value="0" aria-label="Выбрать температуру"><div class="slider-labels"><span>−35°</span><span>+8°</span></div></div></div>
+      <div class="divider"></div>
+      <label class="input-label" for="makeup">Расход подпитки за сутки</label><div class="hint">Введите объём воды, который поступил в систему за сутки.</div>
+      <div class="number-wrap"><input id="makeup" type="number" inputmode="decimal" min="0" step="any" placeholder="Например, 1,5" aria-label="Расход подпитки в кубических метрах"><span>м³</span></div>
+      <div class="error" id="error" role="alert"></div>
+      <div class="actions"><button class="btn btn-primary" type="submit">Рассчитать <span aria-hidden="true">→</span></button><button class="btn btn-secondary" type="button" id="resetBtn">Сбросить</button></div>
+    </form>
+    <section class="result" id="result" aria-live="polite">
+      <div class="result-top"><div class="result-title">РЕЗУЛЬТАТ РАСЧЁТА</div><div class="temperature-badge" id="tempBadge">0 °C</div></div>
+      <div class="total-label">Общий расход угля</div><div class="total"><span id="total">0,000</span> <small>т/сутки</small></div>
+      <div class="result-grid">
+        <div class="metric"><div class="metric-label">Подача</div><div class="metric-value"><span id="supply">—</span><small> °C</small></div></div>
+        <div class="metric"><div class="metric-label">Обратка</div><div class="metric-value"><span id="return">—</span><small> °C</small></div></div>
+        <div class="metric"><div class="metric-label">Расход угля базовый</div><div class="metric-value"><span id="base">—</span><small> т/сутки</small></div></div>
+        <div class="metric"><div class="metric-label">На подпитку</div><div class="metric-value"><span id="waterCoal">—</span><small> кг/сутки</small></div></div>
+      </div>
+      <p class="formula" id="formula"></p>
+    </section>
+    <button class="btn install" id="installBtn" type="button">Установить на телефон</button>
+    <p class="foot">Данные и расчёты остаются на телефоне. Приложение не отправляет введённые значения в интернет.</p>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+<script>
+// Таблица: температура (°C) | подача (°C) | обратка (°C) | базовый расход угля (т/сутки)
+const COAL_DATA = [
+  [  8, 39.9, 35.6, 0.500],
+  [  7, 41.3, 36.6, 0.530],
+  [  6, 42.6, 37.5, 0.560],
+  [  5, 43.9, 38.5, 0.595],
+  [  4, 45.3, 39.4, 0.630],
+  [  3, 46.5, 40.4, 0.665],
+  [  2, 47.8, 41.3, 0.700],
+  [  1, 49.1, 42.2, 0.735],
+  [  0, 50.3, 43.1, 0.770],
+  [ -1, 51.6, 44.0, 0.810],
+  [ -2, 52.8, 44.8, 0.850],
+  [ -3, 54.1, 45.7, 0.890],
+  [ -4, 55.3, 46.5, 0.930],
+  [ -5, 56.5, 47.4, 0.970],
+  [ -6, 57.7, 48.2, 1.015],
+  [ -7, 58.9, 49.0, 1.060],
+  [ -8, 60.1, 49.9, 1.105],
+  [ -9, 61.2, 50.7, 1.150],
+  [-10, 62.4, 51.5, 1.200],
+  [-11, 63.6, 52.3, 1.250],
+  [-12, 64.7, 53.1, 1.300],
+  [-13, 65.9, 53.9, 1.350],
+  [-14, 67.0, 54.7, 1.400],
+  [-15, 68.2, 55.4, 1.455],
+  [-16, 69.3, 56.2, 1.510],
+  [-17, 70.4, 57.0, 1.570],
+  [-18, 71.5, 57.7, 1.635],
+  [-19, 72.7, 58.5, 1.700],
+  [-20, 73.8, 59.2, 1.770],
+  [-21, 74.9, 60.0, 1.840],
+  [-22, 76.0, 60.7, 1.910],
+  [-23, 77.1, 61.3, 1.990],
+  [-24, 78.2, 62.2, 2.070],
+  [-25, 79.3, 62.9, 2.150],
+  [-26, 80.4, 63.6, 2.234],
+  [-27, 81.5, 64.4, 2.319],
+  [-28, 82.5, 65.1, 2.404],
+  [-29, 83.6, 65.8, 2.489],
+  [-30, 84.7, 66.5, 2.574],
+  [-31, 85.8, 67.2, 2.659],
+  [-32, 86.8, 67.9, 2.744],
+  [-33, 87.9, 68.6, 2.829],
+  [-34, 88.9, 69.3, 2.914],
+  [-35, 90.0, 70.0, 2.999],
+];
+
+// Таблица: температура (°C) | уголь на 1 м³ подпитки (кг)
+const COAL_PER_M3 = [
+  [  8, 9],
+  [  7, 10],
+  [  6, 10],
+  [  5, 10],
+  [  4, 11],
+  [  3, 11],
+  [  2, 11],
+  [  1, 11],
+  [  0, 12],
+  [ -1, 12],
+  [ -2, 12],
+  [ -3, 13],
+  [ -4, 13],
+  [ -5, 13],
+  [ -6, 14],
+  [ -7, 14],
+  [ -8, 14],
+  [ -9, 14],
+  [-10, 15],
+  [-11, 15],
+  [-12, 15],
+  [-13, 16],
+  [-14, 16],
+  [-15, 16],
+  [-16, 16],
+  [-17, 17],
+  [-18, 17],
+  [-19, 17],
+  [-20, 17],
+  [-21, 18],
+  [-22, 18],
+  [-23, 18],
+  [-24, 18],
+  [-25, 19],
+  [-26, 19],
+  [-27, 19],
+  [-28, 19],
+  [-29, 20],
+  [-30, 20],
+  [-31, 20],
+  [-32, 20],
+  [-33, 21],
+  [-34, 21],
+  [-35, 21],
+];
+
+// Индексы для быстрого поиска по температуре; редактировать нужно таблицы выше.
+const COAL_DATA_BY_TEMP = Object.fromEntries(
+  COAL_DATA.map(([temperature, supply, back, coal]) => [
+    temperature,
+    {"Подача": supply, "Обратка": back, "Расход": coal}
+  ])
+);
+const COAL_PER_M3_BY_TEMP = Object.fromEntries(COAL_PER_M3);
+const $ = id => document.getElementById(id), temp = $('temperature'), slider = $('tempSlider'), makeup = $('makeup'), error = $('error'), result = $('result');
+function format(n,d=2){return Number(n).toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function hideError(){error.style.display='none';error.textContent=''}
+function setTemp(value){temp.value=value;slider.value=value}
+temp.addEventListener('input',()=>{if(temp.value!==''&&Number(temp.value)>=-35&&Number(temp.value)<=8)slider.value=temp.value});
+slider.addEventListener('input',()=>setTemp(slider.value));
+$('calcForm').addEventListener('submit',e=>{e.preventDefault();hideError();const t=Number(temp.value), raw=makeup.value.trim().replace(',','.');const m=Number(raw);if(temp.value.trim()===''||!Number.isInteger(t)||t < -35||t>8){error.textContent='Введите целую температуру от −35 до +8 °C.';error.style.display='block';temp.focus();return}if(raw===''||!Number.isFinite(m)||m<0){error.textContent='Введите расход подпитки числом, не меньше нуля.';error.style.display='block';makeup.focus();return}const data=COAL_DATA_BY_TEMP[t], per=COAL_PER_M3_BY_TEMP[t], water=per*m, total=data['Расход']+water/1000;$('tempBadge').textContent=(t>0?'+':'')+t+' °C';$('total').textContent=format(total,3);$('supply').textContent=format(data['Подача'],1);$('return').textContent=format(data['Обратка'],1);$('base').textContent=format(data['Расход'],3);$('waterCoal').textContent=format(water,2);$('formula').textContent=`Подпитка: ${format(per,0)} кг угля на 1 м³ × ${format(m,3)} м³ = ${format(water,2)} кг. Итого: ${format(data['Расход'],3)} + ${format(water/1000,3)} т.`;result.style.display='block';result.scrollIntoView({behavior:'smooth',block:'nearest'})});
+$('resetBtn').addEventListener('click',()=>{setTemp(0);makeup.value='';hideError();result.style.display='none';temp.focus()});
+let installPrompt;const installBtn=$('installBtn');window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;installBtn.style.display='block'});installBtn.addEventListener('click',async()=>{if(!installPrompt){showToast('В браузере выберите меню ⋮ → «Установить приложение» или «Добавить на главный экран».');return}installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installBtn.style.display='none'});window.addEventListener('appinstalled',()=>{installBtn.style.display='none';showToast('Приложение установлено на телефон.')});function showToast(text){const t=$('toast');t.textContent=text;t.style.display='block';setTimeout(()=>t.style.display='none',3800)}
+if('serviceWorker' in navigator&&location.protocol!=='file:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
